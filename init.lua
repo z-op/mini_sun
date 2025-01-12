@@ -1,4 +1,17 @@
-local range = 6
+local range = 20
+
+local blacklisted = function(name)
+	blacklist = {'digtron:auto_controller', 'digtron:axle', 'digtron:builder', 'digtron:combined_storage', 'digtron:controller', 'digtron:inventory', 'digtron:fuelstore', 'techage:ta3_digtron_battery_pas', 'digtron:pusher'}
+for k,v in pairs(blacklist) do
+    if v == name then
+        return true
+    end
+end
+if minetest.get_item_group(name, "soil") then return true end
+return false
+end
+
+
 
 local grounded = function(pos)
 	-- checks all nodes touching the edges and corners (but not faces) of the given pos
@@ -7,8 +20,10 @@ local grounded = function(pos)
 			for nz = -1, 1, 2 do
 				local npos = { x=pos.x+nx, y=pos.y+ny, z=pos.z+nz }
 				local name = minetest.get_node(npos).name
-				if minetest.registered_nodes[name].drawtype ~= "airlike" then
-					return true
+				if name ~= nil then
+					if minetest.registered_nodes[name].drawtype ~= "airlike" then--and not blacklisted(name) then
+						return true
+					end
 				end
 			end
 		end
@@ -22,16 +37,20 @@ end
 
 minetest.register_node("mini_sun:glow", {
 	tiles = { "mini_sun_glow.png" },
-	--drawtype = "plantlike",
 	drawtype = "airlike",
+	paramtype = "light",
 	walkable = false,
 	pointable = false,
-	diggable = false,
+	diggable = true,
 	climbable = false,
 	buildable_to = true,
 	sunlight_propagates = true,
 	paramtype = "light",
 	light_source = 14,
+	air_equivalent = true,
+	drop = "",
+	description = "glow",
+	groups = {not_in_creative_inventory=1}
 })
 
 minetest.register_craft({
